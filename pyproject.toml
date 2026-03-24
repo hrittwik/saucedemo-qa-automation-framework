@@ -1,0 +1,29 @@
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+addopts = [
+    "--reruns", "1",
+    "--reruns-delay", "2",
+    "-v",
+    "--tb=short",
+    "--html=reports/report.html",
+    "--self-contained-html",
+]
+
+markers = [
+    "smoke: fast, critical path tests",
+    "regression: full regression suite",
+    "auth: authentication tests",
+    "catalog: product catalog tests",
+    "cart: shopping cart tests",
+    "checkout: checkout flow tests",
+    "performance: performance and resilience tests",
+]
+
+log_cli = true
+log_cli_level = "INFO"
+log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"

@@ -1,0 +1,25 @@
+{
+  "valid_customer": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "postal_code": "12345"
+  },
+  "missing_first_name": {
+    "first_name": "",
+    "last_name": "Doe",
+    "postal_code": "12345",
+    "expected_error": "Error: First Name is required"
+  },
+  "missing_last_name": {
+    "first_name": "John",
+    "last_name": "",
+    "postal_code": "12345",
+    "expected_error": "Error: Last Name is required"
+  },
+  "missing_postal_code": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "postal_code": "",
+    "expected_error": "Error: Postal Code is required"
+  }
+}

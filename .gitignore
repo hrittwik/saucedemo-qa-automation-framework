@@ -1,0 +1,24 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Reports (generated at runtime)
+reports/
+allure-results/
+allure-report/
+
+# Screenshots (generated at runtime)
+screenshots/
+
+# IDE
+.idea/
+.vscode/
+*.swp
