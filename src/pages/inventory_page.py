@@ -19,7 +19,7 @@ class InventoryPage(BasePage):
     _SORT_DROPDOWN   = (By.CSS_SELECTOR, "[data-test='product-sort-container']")
     _CART_BADGE      = (By.CSS_SELECTOR, "[data-test='shopping-cart-badge']")
     _CART_LINK       = (By.CSS_SELECTOR, "[data-test='shopping-cart-link']")
-    _MENU_BUTTON     = (By.CSS_SELECTOR, "[data-test='open-menu']")
+    _MENU_BUTTON     = (By.ID, "react-burger-menu-btn")
     _LOGOUT_LINK     = (By.CSS_SELECTOR, "[data-test='logout-sidebar-link']")
     _MENU_CLOSE      = (By.CSS_SELECTOR, "[data-test='close-menu']")
     # Product images have no data-test — use class as stable fallback
@@ -61,6 +61,8 @@ class InventoryPage(BasePage):
 
     def open_menu(self) -> "InventoryPage":
         self._click(self._MENU_BUTTON)
+        # Wait for menu to fully animate open before caller proceeds  ← FIXED
+        self._wait.for_element_visible(self._LOGOUT_LINK)
         return self
 
     def logout(self) -> None:
@@ -90,10 +92,10 @@ class InventoryPage(BasePage):
 
     def get_product_image_srcs(self) -> list[str]:
         """Returns all product image src attributes — used for visual regression."""
-        from selenium.webdriver.common.by import By
-        containers = self._find_all(self._PRODUCT_IMAGES)
-        return [c.find_element(By.TAG_NAME, "img").get_attribute("src")
-                for c in containers]
+        images = self._find_all(
+            (By.CSS_SELECTOR, ".inventory_item_img img")  # ← FIXED
+        )
+        return [img.get_attribute("src") for img in images]
 
     def is_on_inventory_page(self) -> bool:
         return "inventory.html" in self.current_url
