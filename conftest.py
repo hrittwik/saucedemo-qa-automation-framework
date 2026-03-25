@@ -33,6 +33,14 @@ from src.utils.data_loader import DataLoader
 
 # ── Driver lifecycle ──────────────────────────────────────────────────────────
 
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_stale_drivers():
+    """Kill leftover chromedriver processes before the session starts."""
+    os.system("pkill -f chromedriver 2>/dev/null || true")
+    os.system("pkill -f chrome 2>/dev/null || true")
+    yield
+
+
 @pytest.fixture(scope="function")
 def driver() -> WebDriver:
     """
@@ -41,7 +49,12 @@ def driver() -> WebDriver:
     """
     _driver = create_driver()
     yield _driver
-    _driver.quit()
+    try:
+        _driver.quit()
+    except PermissionError:
+        pass  # ChromeDriver process owned by another user/session
+    except Exception:
+        pass
 
 
 # ── Authenticated session fixture ─────────────────────────────────────────────
@@ -113,7 +126,6 @@ def pytest_runtest_makereport(item, call):
                 extras = getattr(report, "extras", [])
                 try:
                     from pytest_html import extras as html_extras
-                    # Use forward slashes in the HTML src — works on all OS
                     from pathlib import Path
                     relative = Path(path).as_posix()
                     extras.append(html_extras.image(relative))
