@@ -12,7 +12,6 @@ ChromeDriver resolution order:
 
 import glob
 import os
-import platform
 import shutil
 
 from selenium import webdriver
@@ -39,7 +38,9 @@ def create_driver() -> webdriver.Remote:
     elif browser == "edge":
         return _create_edge_driver()
     else:
-        raise ValueError(f"Unsupported browser: '{browser}'. Supported: chrome, firefox, edge")
+        raise ValueError(
+            f"Unsupported browser: '{browser}'. Supported: chrome, firefox, edge"
+        )
 
 
 def _resolve_chromedriver() -> str:
@@ -69,7 +70,7 @@ def _resolve_chromedriver() -> str:
     if "THIRD_PARTY_NOTICES" not in wdm_path and os.path.isfile(wdm_path):
         return wdm_path
 
-    # Fix the known wdm THIRD_PARTY_NOTICES bug — find real binary in same dir
+    # Fix the known wdm THIRD_PARTY_NOTICES bug
     driver_dir = os.path.dirname(wdm_path)
     for candidate in sorted(glob.glob(os.path.join(driver_dir, "chromedriver*"))):
         if "THIRD_PARTY" not in candidate and os.path.isfile(candidate):
@@ -88,7 +89,9 @@ def _chrome_options() -> ChromeOptions:
     """Build Chrome options that work on all environments."""
     opts = ChromeOptions()
 
-    if settings.HEADLESS:
+    # Force headless in CI even if settings.HEADLESS is misconfigured
+    is_ci = os.environ.get("CI", "false").lower() == "true"
+    if settings.HEADLESS or is_ci:
         opts.add_argument("--headless=new")
 
     # Required for Linux CI (no display server, limited shared memory)
@@ -152,6 +155,14 @@ def _create_edge_driver() -> webdriver.Edge:
 
 def _configure(driver: webdriver.Remote) -> None:
     """Apply timeouts and window size uniformly across all browsers."""
-    driver.implicitly_wait(settings.IMPLICIT_WAIT)
+    # IMPLICIT_WAIT must be 0 — mixing implicit + explicit waits causes
+    # unpredictable Selenium behaviour. Explicit waits are used everywhere.
+    driver.implicitly_wait(settings.IMPLICIT_WAIT)  # always 0
     driver.set_page_load_timeout(settings.PAGE_LOAD_TIMEOUT)
-    driver.maximize_window()
+
+    # maximize_window() fails silently in headless CI and resets window size
+    is_ci = os.environ.get("CI", "false").lower() == "true"
+    if not settings.HEADLESS and not is_ci:
+        driver.maximize_window()
+    else:
+        driver.set_window_size(1920, 1080)

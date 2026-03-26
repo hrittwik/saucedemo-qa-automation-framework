@@ -4,7 +4,6 @@ Centralised, environment-aware configuration loader.
 All values are read from environment variables (or a .env file).
 Nothing is hard-coded here — callers import `settings` and access attributes.
 """
-
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -25,9 +24,11 @@ class Settings:
     HEADLESS: bool = os.getenv("HEADLESS", "true").lower() == "true"
 
     # ── Timeouts (seconds) ────────────────────────────────────────────────────
-    IMPLICIT_WAIT: int = int(os.getenv("IMPLICIT_WAIT", "10"))
-    EXPLICIT_WAIT: int = int(os.getenv("EXPLICIT_WAIT", "15"))
-    PAGE_LOAD_TIMEOUT: int = int(os.getenv("PAGE_LOAD_TIMEOUT", "30"))
+    # IMPLICIT_WAIT must be 0 — mixing implicit + explicit waits causes
+    # unpredictable behaviour in Selenium. Use explicit waits only.
+    IMPLICIT_WAIT: int = 0
+    EXPLICIT_WAIT: int = int(os.getenv("EXPLICIT_WAIT", "20"))      # increased for CI
+    PAGE_LOAD_TIMEOUT: int = int(os.getenv("PAGE_LOAD_TIMEOUT", "45"))  # increased for CI
 
     # ── Reporting ─────────────────────────────────────────────────────────────
     SCREENSHOT_ON_FAILURE: bool = os.getenv("SCREENSHOT_ON_FAILURE", "true").lower() == "true"
