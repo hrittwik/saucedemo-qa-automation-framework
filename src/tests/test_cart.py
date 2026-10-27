@@ -9,7 +9,6 @@ Covers:
 - Cart persists across page navigation
 """
 
-import pytest
 import allure
 
 from src.pages import InventoryPage, CartPage

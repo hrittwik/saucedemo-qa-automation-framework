@@ -8,7 +8,6 @@ Covers:
 - problem_user visual regression (broken/mismatched product images)
 """
 
-import pytest
 import allure
 
 from src.pages import LoginPage, InventoryPage

@@ -93,7 +93,7 @@ Examples:
     )
     parser.add_argument(
         "--browser",
-        choices=["chrome", "firefox"],
+        choices=["chrome", "firefox", "edge"],
         default="chrome",
         help="Browser to use (default: chrome)",
     )

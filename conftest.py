@@ -9,13 +9,13 @@ Responsibilities:
 - Page Object injection into tests
 """
 
-import os
+import base64
 import pytest
 from pathlib import Path
 
 # Ensure required directories exist before pytest tries to write reports
 for _d in ["reports", "screenshots", "allure-results"]:
-    Path(_d).mkdir(exist_ok=True)
+    (Path(__file__).resolve().parent / _d).mkdir(exist_ok=True)
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.utils.driver_factory import create_driver
@@ -33,13 +33,6 @@ from src.utils.data_loader import DataLoader
 
 # ── Driver lifecycle ──────────────────────────────────────────────────────────
 
-@pytest.fixture(scope="session", autouse=True)
-def cleanup_stale_drivers():
-    """Kill leftover chromedriver processes before the session starts."""
-    os.system("pkill -f chromedriver 2>/dev/null || true")
-    os.system("pkill -f chrome 2>/dev/null || true")
-    yield
-
 
 @pytest.fixture(scope="function")
 def driver() -> WebDriver:
@@ -48,13 +41,10 @@ def driver() -> WebDriver:
     Guaranteed teardown even if the test fails.
     """
     _driver = create_driver()
-    yield _driver
     try:
+        yield _driver
+    finally:
         _driver.quit()
-    except PermissionError:
-        pass  # ChromeDriver process owned by another user/session
-    except Exception:
-        pass
 
 
 # ── Authenticated session fixture ─────────────────────────────────────────────
@@ -105,6 +95,16 @@ def checkout_complete(authenticated_driver: WebDriver) -> CheckoutCompletePage:
     return CheckoutCompletePage(authenticated_driver)
 
 
+# ── Report path ────────────────────────────────────────────────────────────────
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_configure(config):
+    """Anchor the HTML report to the project root, whatever directory pytest runs from."""
+    htmlpath = getattr(config.option, "htmlpath", None)
+    if htmlpath and not Path(htmlpath).is_absolute():
+        config.option.htmlpath = str(config.rootpath / htmlpath)
+
+
 # ── Failure hooks ──────────────────────────────────────────────────────────────
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -126,9 +126,8 @@ def pytest_runtest_makereport(item, call):
                 extras = getattr(report, "extras", [])
                 try:
                     from pytest_html import extras as html_extras
-                    from pathlib import Path
-                    relative = Path(path).as_posix()
-                    extras.append(html_extras.image(relative))
-                    report.extras = extras
                 except ImportError:
-                    pass
+                    return
+                image_data = base64.b64encode(Path(path).read_bytes()).decode("ascii")
+                extras.append(html_extras.image(image_data))
+                report.extras = extras

@@ -132,4 +132,5 @@ class TestSessionBehaviour:
         # Try to bypass login by going directly to inventory
         inventory.open("inventory.html")
         login = LoginPage(authenticated_driver)
+        login.wait_for_login_page()
         assert login.is_on_login_page(), "Should be redirected to login after logout"

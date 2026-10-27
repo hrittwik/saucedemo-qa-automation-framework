@@ -109,7 +109,23 @@ def _chrome_options() -> ChromeOptions:
     opts.add_experimental_option("useAutomationExtension", False)
     opts.add_argument("--disable-blink-features=AutomationControlled")
 
+    _disable_password_manager(opts)
+
     return opts
+
+
+def _disable_password_manager(opts) -> None:
+    """
+    Chromium's password-leak bubble ("Change your password") appears after
+    logging in with secret_sauce and swallows subsequent clicks and keystrokes,
+    even in headless mode. It is native UI, so it never shows in screenshots.
+    """
+    opts.add_experimental_option("prefs", {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+        "profile.password_manager_leak_detection": False,
+    })
+    opts.add_argument("--disable-features=PasswordLeakDetection")
 
 
 def _create_chrome_driver() -> webdriver.Chrome:
@@ -144,6 +160,7 @@ def _create_edge_driver() -> webdriver.Edge:
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1920,1080")
+    _disable_password_manager(opts)
 
     driver = webdriver.Edge(
         service=EdgeService(EdgeChromiumDriverManager().install()),

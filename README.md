@@ -1,6 +1,6 @@
 # SauceDemo QA Automation Framework
 
-[![QA Automation Suite](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml)
+[![QA Automation Suite](https://github.com/hrittwik/saucedemo-qa-automation-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/hrittwik/saucedemo-qa-automation-framework/actions/workflows/ci.yml)
 
 > Production-grade Selenium + Python test automation framework for [SauceDemo](https://www.saucedemo.com).  
 > Runs identically on **Windows**, **macOS**, and **Linux** — no shell scripts, no Makefile, no OS-specific commands.
@@ -107,8 +107,8 @@ Firefox and Edge are also supported — see [Browser Options](#browser-options).
 ### Step 1 — Get the code
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/hrittwik/saucedemo-qa-automation-framework.git
+cd saucedemo-qa-automation-framework
 ```
 
 ---
@@ -253,7 +253,7 @@ allure serve allure-results
 Defined in `.github/workflows/ci.yml`. Triggers on push and pull request to `main`.
 
 ```
-Checkout → Setup Python 3.11 → Install Chrome → pip install → Run tests → Upload artifacts
+Checkout → Setup Python 3.12 → Install Chrome → pip install → Run tests → Upload artifacts
 ```
 
 **Viewing reports after CI:**
@@ -262,7 +262,6 @@ Checkout → Setup Python 3.11 → Install Chrome → pip install → Run tests 
 3. Scroll to **Artifacts** at the bottom
 4. Download `pytest-html-report` and open `report.html`
 
-Replace `YOUR_USERNAME/YOUR_REPO` in the badge at the top of this file.
 
 ---
 
@@ -293,4 +292,3 @@ Replace `YOUR_USERNAME/YOUR_REPO` in the badge at the top of this file.
 ## Author
 
 **Hrittwik Barua**  
-

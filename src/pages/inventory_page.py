@@ -22,6 +22,7 @@ class InventoryPage(BasePage):
     _MENU_BUTTON     = (By.ID, "react-burger-menu-btn")
     _LOGOUT_LINK     = (By.CSS_SELECTOR, "[data-test='logout-sidebar-link']")
     _MENU_CLOSE      = (By.CSS_SELECTOR, "[data-test='close-menu']")
+    _LOGIN_USERNAME  = (By.CSS_SELECTOR, "[data-test='username']")
     # Product images have no data-test — use class as stable fallback
     _PRODUCT_IMAGES  = (By.CLASS_NAME, "inventory_item_img")
 
@@ -41,6 +42,7 @@ class InventoryPage(BasePage):
 
     def open_inventory(self) -> "InventoryPage":
         self.open("inventory.html")
+        self._wait.for_text_in_element(self._PAGE_TITLE, "Products")
         return self
 
     def sort_by(self, sort_value: str) -> "InventoryPage":
@@ -58,6 +60,7 @@ class InventoryPage(BasePage):
 
     def go_to_cart(self) -> None:
         self._click(self._CART_LINK)
+        self._wait.for_text_in_element(self._PAGE_TITLE, "Your Cart")
 
     def open_menu(self) -> "InventoryPage":
         self._click(self._MENU_BUTTON)
@@ -69,6 +72,10 @@ class InventoryPage(BasePage):
         self.open_menu()
         self._wait.for_element_clickable(self._LOGOUT_LINK)
         self._click(self._LOGOUT_LINK)
+        self._wait.until(
+            lambda driver: "inventory" not in driver.current_url
+            and bool(driver.find_elements(*self._LOGIN_USERNAME))
+        )
 
     # ── Queries ───────────────────────────────────────────────────────────────
 

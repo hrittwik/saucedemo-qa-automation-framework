@@ -9,8 +9,6 @@ Covers:
 
 import time
 import allure
-import pytest
-
 from src.pages import LoginPage, InventoryPage, CartPage, CheckoutStepOnePage
 from src.utils.data_loader import DataLoader
 from src.utils.assertions import Assertions
@@ -46,7 +44,7 @@ class TestPerformanceGlitchUser:
             Assertions.assert_url_contains(login.current_url, "inventory.html")
 
     @allure.story("Slow login - timing")
-    def test_performance_glitch_login_is_slower_than_standard(self, driver):
+    def test_performance_glitch_login_duration_is_recorded(self, driver):
         """
         Documents that performance_glitch_user is measurably slower than standard_user.
         This is an informational/diagnostic test — it records but does not fail on duration.
@@ -78,9 +76,9 @@ class TestPerformanceGlitchUser:
             attachment_type=allure.attachment_type.TEXT,
         )
 
-        # The glitch user should be slower — but this assertion is lenient
-        # (flaky if the network is also slow for standard_user)
-        assert glitch_duration >= 0, "Duration should be a positive number"
+        assert standard_duration > 0 and glitch_duration > 0, (
+            "Both login durations should be measurable"
+        )
 
 
 @allure.feature("Performance & Resilience")
@@ -152,9 +150,10 @@ class TestErrorUser:
 
         customer = DataLoader.get_checkout_data("valid_customer")
         step_one = CheckoutStepOnePage(driver)
-        step_one.fill_and_continue(
-            customer["first_name"], customer["last_name"], customer["postal_code"]
-        )
+        step_one.enter_first_name(customer["first_name"])
+        step_one.enter_last_name(customer["last_name"])
+        step_one.enter_postal_code(customer["postal_code"])
+        step_one.click_continue()
 
         # error_user may show an error or proceed — document both states
         current_url = step_one.current_url

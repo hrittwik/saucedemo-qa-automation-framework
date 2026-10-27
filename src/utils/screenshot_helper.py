@@ -4,10 +4,8 @@ Handles screenshot capture on test failure (and on demand).
 Screenshots are saved to settings.SCREENSHOTS_DIR with timestamped filenames.
 """
 
-import os
 import re
 import time
-from pathlib import Path
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -37,7 +35,8 @@ class ScreenshotHelper:
         filename = f"{safe_name}_{timestamp}.png"
         filepath = self._dir / filename
 
-        self._driver.save_screenshot(str(filepath))
+        if not self._driver.save_screenshot(str(filepath)):
+            raise OSError(f"WebDriver failed to save screenshot to {filepath}")
         return str(filepath)
 
     def capture_on_failure(self, test_name: str) -> str | None:

@@ -7,7 +7,6 @@ Keeps all raw Selenium calls here so subclasses stay declarative.
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 from src.config import settings
@@ -71,7 +70,7 @@ class BasePage:
         Select(element).select_by_value(value)
 
     def _is_displayed(self, locator: tuple) -> bool:
-        return self._wait.is_element_present(locator)
+        return self._wait.is_element_visible(locator)
 
     # ── Utilities ─────────────────────────────────────────────────────────────
 

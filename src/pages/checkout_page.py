@@ -48,6 +48,13 @@ class CheckoutStepOnePage(BasePage):
         self.enter_last_name(last_name)
         self.enter_postal_code(postal_code)
         self.click_continue()
+        self._wait.until(
+            lambda driver: "checkout-step-two" in driver.current_url
+            or any(
+                element.is_displayed()
+                for element in driver.find_elements(*self._ERROR_MESSAGE)
+            )
+        )
 
     # ── Queries ───────────────────────────────────────────────────────────────
 
@@ -73,13 +80,16 @@ class CheckoutStepTwoPage(BasePage):
 
     def click_finish(self) -> None:
         self._click(self._FINISH_BTN)
+        self._wait.for_url_contains("checkout-complete")
 
     # ── Queries ───────────────────────────────────────────────────────────────
 
     def _extract_price(self, locator: tuple) -> float:
         text = self._get_text(locator)
         match = re.search(r"[\d.]+", text)
-        return float(match.group()) if match else 0.0
+        if not match:
+            raise ValueError(f"Could not parse a price from checkout label: {text!r}")
+        return float(match.group())
 
     def get_item_total(self) -> float:
         return self._extract_price(self._ITEM_TOTAL_LABEL)

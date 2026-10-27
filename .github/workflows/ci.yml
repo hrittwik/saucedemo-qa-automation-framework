@@ -16,7 +16,6 @@ jobs:
       BROWSER: chrome
       HEADLESS: "true"
       SCREENSHOT_ON_FAILURE: "true"
-      IMPLICIT_WAIT: "10"
       EXPLICIT_WAIT: "20"
       PAGE_LOAD_TIMEOUT: "30"
 

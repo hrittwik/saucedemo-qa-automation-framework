@@ -10,7 +10,6 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 
 from src.config import settings
@@ -23,12 +22,12 @@ class WaitHelper:
 
     def __init__(self, driver: WebDriver, timeout: int = None):
         self._driver = driver
-        self._timeout = timeout or settings.EXPLICIT_WAIT
+        self._timeout = settings.EXPLICIT_WAIT if timeout is None else timeout
 
     def _wait(self, timeout: int = None) -> WebDriverWait:
         return WebDriverWait(
             self._driver,
-            timeout or self._timeout,
+            self._timeout if timeout is None else timeout,
             ignored_exceptions=[StaleElementReferenceException],
         )
 
@@ -72,7 +71,7 @@ class WaitHelper:
 
     def for_page_load(self, timeout: int = None) -> bool:
         """Wait until document.readyState == 'complete'."""
-        t = timeout or settings.PAGE_LOAD_TIMEOUT
+        t = settings.PAGE_LOAD_TIMEOUT if timeout is None else timeout
         return WebDriverWait(self._driver, t).until(
             lambda d: d.execute_script("return document.readyState") == "complete"
         )
@@ -93,6 +92,14 @@ class WaitHelper:
         """Return True if element appears within timeout, False otherwise. Does not raise."""
         try:
             self._wait(timeout).until(EC.presence_of_element_located(locator))
+            return True
+        except TimeoutException:
+            return False
+
+    def is_element_visible(self, locator: tuple, timeout: int = 3) -> bool:
+        """Return True if an element becomes visible within timeout, False otherwise."""
+        try:
+            self._wait(timeout).until(EC.visibility_of_element_located(locator))
             return True
         except TimeoutException:
             return False

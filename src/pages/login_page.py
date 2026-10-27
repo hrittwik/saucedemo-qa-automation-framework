@@ -56,3 +56,10 @@ class LoginPage(BasePage):
 
     def is_on_login_page(self) -> bool:
         return "saucedemo.com" in self.current_url and "inventory" not in self.current_url
+
+    def wait_for_login_page(self) -> None:
+        """Wait for a post-logout redirect to finish rendering the login page."""
+        self._wait.until(
+            lambda driver: "inventory" not in driver.current_url
+            and bool(driver.find_elements(*self._USERNAME_INPUT))
+        )

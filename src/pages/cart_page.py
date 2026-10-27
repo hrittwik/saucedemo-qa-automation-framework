@@ -12,7 +12,7 @@ class CartPage(BasePage):
 
     # ── Locators ──────────────────────────────────────────────────────────────
     _PAGE_TITLE        = (By.CSS_SELECTOR, "[data-test='title']")
-    _CART_ITEMS        = (By.CSS_SELECTOR, "[data-test='cart-item']")
+    _CART_ITEMS        = (By.CSS_SELECTOR, "[data-test='inventory-item']")
     _ITEM_NAMES        = (By.CSS_SELECTOR, "[data-test='inventory-item-name']")
     _ITEM_PRICES       = (By.CSS_SELECTOR, "[data-test='inventory-item-price']")
     _ITEM_QUANTITIES   = (By.CSS_SELECTOR, "[data-test='item-quantity']")
@@ -29,13 +29,16 @@ class CartPage(BasePage):
 
     def open_cart(self) -> "CartPage":
         self.open("cart.html")
+        self._wait.for_text_in_element(self._PAGE_TITLE, "Your Cart")
         return self
 
     def continue_shopping(self) -> None:
         self._click(self._CONTINUE_SHOPPING)
+        self._wait.for_text_in_element(self._PAGE_TITLE, "Products")
 
     def proceed_to_checkout(self) -> None:
         self._click(self._CHECKOUT_BTN)
+        self._wait.for_url_contains("checkout-step-one")
 
     def remove_item(self, product_name: str) -> "CartPage":
         locator = self._remove_button(product_name)
